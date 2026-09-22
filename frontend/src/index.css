@@ -1,0 +1,62 @@
+@import '@fontsource/unica-one/400.css';
+@import '@fontsource/crimson-text/400.css';
+@import '@fontsource/crimson-text/600.css';
+@import '@fontsource/crimson-text/700.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-charcoal text-sage font-body antialiased;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    @apply font-heading tracking-wide text-gold;
+  }
+}
+
+@layer components {
+  /*
+   * Solid fills only — no gradients (avoid-list #1/#2). Hover is scale+shadow,
+   * not just a fade (avoid-list #14). Text is charcoal on the light fill colors
+   * to meet contrast (see tailwind.config.js comment) — never white-on-fill.
+   */
+  .btn-primary {
+    @apply inline-flex items-center justify-center rounded-md bg-sage px-6 py-3
+      font-heading text-charcoal transition-transform duration-150
+      hover:scale-105 hover:shadow-lg focus-visible:outline focus-visible:outline-2
+      focus-visible:outline-offset-2 focus-visible:outline-gold;
+  }
+
+  .btn-secondary {
+    @apply inline-flex items-center justify-center rounded-md bg-olive px-6 py-3
+      font-heading text-charcoal transition-transform duration-150
+      hover:scale-105 hover:shadow-lg focus-visible:outline focus-visible:outline-2
+      focus-visible:outline-offset-2 focus-visible:outline-gold;
+  }
+
+  /* Plain surface, no colored border and no glass/blur treatment (avoid-list #5/#6). */
+  .card {
+    @apply rounded-lg bg-olive/10 p-6;
+  }
+
+  .badge {
+    @apply inline-block rounded-full bg-gold px-3 py-1 text-sm font-body text-charcoal;
+  }
+
+  /*
+   * Zine-page CTA (ZINE_PROMPT.md #6): flat solid fill, no border-radius,
+   * no shadow/gradient — contrast does the work, not effects.
+   */
+  .btn-flat {
+    @apply inline-flex items-center justify-center bg-white px-6 py-3
+      font-heading text-charcoal transition-colors hover:bg-charcoal hover:text-white
+      focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2
+      focus-visible:outline-white;
+  }
+}
