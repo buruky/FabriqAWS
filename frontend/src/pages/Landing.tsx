@@ -1,8 +1,63 @@
+import { useLayoutEffect, useRef, useState } from 'react'
+import { motion, useScroll, useSpring, useTransform } from 'framer-motion'
 import { Link } from 'react-router-dom'
 import { PageMeta } from '../components/PageMeta'
 import ClickSpark from '../components/ClickSpark/ClickSpark'
 
+const STAR_ICON_HALF = 10 // half of the 20px star icon, to keep it centered on its anchor point
+
+const HEADER_Y = 70 // final resting height (px from top) once the line docks as the header underline
+
 export function Landing() {
+  const bottomLineRef = useRef<HTMLDivElement>(null)
+  const { scrollY } = useScroll()
+  const smoothScrollY = useSpring(scrollY, { stiffness: 90, damping: 20, mass: 0.5 })
+  const rotate = useTransform(smoothScrollY, (v) => v * 0.4)
+
+  const [viewportWidth, setViewportWidth] = useState(() => window.innerWidth)
+  // Measured from the hero's own bottom line so the bar starts perfectly
+  // aligned with it, rather than guessing from viewport height. Gated behind
+  // `ready` so nothing renders (and no spring animates in) until the real
+  // position is known — avoids a flash/slide from the wrong spot on load.
+  const [restY, setRestY] = useState(0)
+  const [ready, setReady] = useState(false)
+  useLayoutEffect(() => {
+    function measure() {
+      setViewportWidth(window.innerWidth)
+      if (bottomLineRef.current) {
+        setRestY(bottomLineRef.current.getBoundingClientRect().top + window.scrollY)
+      }
+      setReady(true)
+    }
+    measure()
+    window.addEventListener('resize', measure)
+    return () => window.removeEventListener('resize', measure)
+  }, [])
+
+  const barRestWidth = 141 // short segment sitting under the logo before any scrolling
+  const barFullWidth = viewportWidth - 120 // star ends near the edge; the docked nav sits to its left
+
+  // The white line itself scrolls away with the hero (it's a normal in-flow
+  // element). So instead of an abstract 0-1 progress, track raw scroll: the
+  // bar rides at exactly `restY - scrollY`, i.e. glued to the real line's
+  // current on-screen position, until that would rise above the header spot
+  // — at which point it clamps there and becomes the header underline.
+  // No spring here — it needs to stay glued exactly to the real scroll
+  // position (a spring would lag and overshoot/bounce against the hard
+  // clamp at the header spot).
+  const catchUpScrollY = Math.max(restY - HEADER_Y, 1)
+  const barTop = useTransform(scrollY, (sy) => Math.max(HEADER_Y, restY - sy))
+
+  // Horizontal growth completes over that same scroll distance, so the bar
+  // is fully extended right as it catches up to the header position.
+  const localProgress = useTransform(scrollY, [0, catchUpScrollY], [0, 1])
+  const barScaleX = useTransform(localProgress, [0, 1], [barRestWidth / barFullWidth, 1])
+
+  // Derived directly from the bar's own (sprung) scale, not a separate spring —
+  // so the star is mathematically pinned to the bar's actual rendered tip and
+  // the two can never drift apart mid-animation.
+  const starX = useTransform(barScaleX, (scale) => scale * barFullWidth - STAR_ICON_HALF)
+
   return (
     <>
       <PageMeta
@@ -11,16 +66,59 @@ export function Landing() {
       />
 
       {/*
-        Wordmark stands in as the headline (the "Wear more of what you
-        already own." copy was cut), followed by subtext and CTA in the
-        same top-left cluster.
+        Starts sitting at the hero's bottom line (where the CTA is) and rises
+        as you scroll, becoming the fixed header underline by the time "How
+        it works" comes into view — the star always rides its leading tip.
+        Gated on `ready` so it never flashes at the wrong spot before the
+        bottom line's real position has been measured.
       */}
-      <section className="relative flex min-h-screen flex-col justify-center overflow-hidden px-6 py-16 sm:px-12">
-        <div className="flex max-w-xl flex-col gap-6">
-          <h1 className="self-start">
-            <span className="text-[18vw] font-heading leading-none text-gold sm:text-[10vw]">
-              FABRIQ
-            </span>
+      {ready && (
+        <motion.div
+          aria-hidden
+          className="pointer-events-none fixed left-0 z-20 h-50 w-full"
+          style={{ top: barTop }}
+        >
+          <motion.div
+            className="absolute left-0 h-0.5 origin-left rounded-full bg-gold"
+            style={{ width: barFullWidth, scaleX: barScaleX, top: '50%', y: '-50%' }}
+          />
+          <motion.svg
+            viewBox="0 0 24 24"
+            className="absolute left-0 h-5 w-5"
+            style={{ x: starX, top: '50%', y: '-50%', rotate }}
+          >
+            <path
+              d="M23 12 L14.83 9.17 L12 1 L9.17 9.17 L1 12 L9.17 14.83 L12 23 L14.83 14.83 Z"
+              fill="#E8D973"
+              stroke="#E8D973"
+              strokeWidth="1"
+              strokeLinejoin="round"
+            />
+          </motion.svg>
+        </motion.div>
+      )}
+
+      {/*
+        Logo already lives top-left via SiteMenu, so the hero headline is a
+        short brand line instead of repeating the wordmark.
+      */}
+      <section className="relative flex min-h-screen flex-col justify-center px-6 py-16 sm:px-12">
+        <div aria-hidden className="pointer-events-none absolute inset-0">
+          <div className="absolute left-0 right-0 top-[0px] h-px bg-white/25" />
+          <div ref={bottomLineRef} className="absolute bottom-[15%] left-0 right-0 h-px bg-white/25" />
+          <div className="absolute left-[140px] -top-20 bottom-[15%] w-px bg-white/25" />
+          <div className="absolute right-[5%] -top-0 bottom-[15%] w-px bg-white/25" />
+          {[20, 28, 36, 44].map((pct) => (
+            <div
+              key={pct}
+              className="absolute h-px w-3 bg-white/25"
+              style={{ left: '140px', top: `${pct}%` }}
+            />
+          ))}
+        </div>
+        <div className="flex max-w-xl flex-col gap-6 pl-[136px] sm:pl-[112px]">
+          <h1 className="self-start text-4xl font-heading leading-tight text-gold sm:text-5xl">
+            Wear more of what you already own.
           </h1>
           <p className="max-w-md text-lg text-white/80">
             Photograph your wardrobe once. Fabriq combines those pieces into outfits
@@ -46,6 +144,9 @@ export function Landing() {
           </p>
         </div>
       </section>
+
+      {/* TEMP: filler height for testing the scroll effect, remove once more sections exist */}
+      <div className="h-[150vh]" />
     </>
   )
 }
