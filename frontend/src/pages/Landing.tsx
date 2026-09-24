@@ -104,15 +104,20 @@ export function Landing() {
       */}
       <section className="relative flex min-h-screen flex-col justify-center px-6 py-16 sm:px-12">
         <div aria-hidden className="pointer-events-none absolute inset-0">
-          <div className="absolute left-0 right-0 top-[0px] h-px bg-white/25" />
-          <div ref={bottomLineRef} className="absolute bottom-[15%] left-0 right-0 h-px bg-white/25" />
-          <div className="absolute left-[140px] -top-20 bottom-[15%] w-px bg-white/25" />
-          <div className="absolute right-[5%] -top-0 bottom-[15%] w-px bg-white/25" />
-          {[20, 28, 36, 44].map((pct) => (
+          <div className="absolute left-0 right-0 top-[0px] h-px bg-white/50" />
+          <div ref={bottomLineRef} className="absolute bottom-[15%] left-0 right-0 h-px bg-white/50" />
+          <div className="absolute left-[140px] -top-20 bottom-[15%] w-px bg-white/50" />
+          <div className="absolute right-[15%] -top-0 bottom-[15%] w-px bg-white/50" />
+          {[
+            { pct: 8, width: 40 },
+            { pct: 16, width: 32 },
+            { pct: 24, width: 24 },
+            { pct: 32, width: 16 },
+          ].map(({ pct, width }) => (
             <div
               key={pct}
-              className="absolute h-px w-3 bg-white/25"
-              style={{ left: '140px', top: `${pct}%` }}
+              className="absolute h-px bg-white/50"
+              style={{ left: '140px', top: `${pct}%`, width }}
             />
           ))}
         </div>

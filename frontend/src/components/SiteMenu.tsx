@@ -61,8 +61,8 @@ export function SiteMenu() {
 
   return (
     <>
-      <div ref={rootRef} className="fixed left-10 top-6 z-30 flex flex-col items-center gap-20 text-white">
-        <Link to="/" onClick={() => setOpen(false)} className="font-heading text-lg tracking-wide text-gold">
+      <div ref={rootRef} className="fixed left-9 top-6 z-30 flex flex-col items-center gap-20 text-white">
+        <Link to="/" onClick={() => setOpen(false)} className="font-heading text-2xl tracking-wide text-gold">
           FABRIQ
         </Link>
 
