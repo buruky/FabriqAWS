@@ -166,7 +166,7 @@ export function Landing() {
           </p>
           <div className="inline-block">
             <ClickSpark sparkColor="#E8D973" sparkCount={10} sparkRadius={20}>
-              <Link to="/register" className="btn-flat">
+              <Link to="/signup" className="btn-flat">
                 Add your wardrobe
               </Link>
             </ClickSpark>

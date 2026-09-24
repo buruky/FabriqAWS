@@ -74,8 +74,8 @@ export function Login() {
 
           <p className="mt-6 text-sm text-white/70">
             No account?{' '}
-            <Link to="/register" className="text-white underline">
-              Register
+            <Link to="/signup" className="text-white underline">
+              Sign up
             </Link>
           </p>
         </div>

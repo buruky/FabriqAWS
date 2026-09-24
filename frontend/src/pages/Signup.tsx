@@ -6,7 +6,7 @@ import { useAuth } from '../hooks/useAuth'
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 const MIN_PASSWORD_LENGTH = 8
 
-export function Register() {
+export function Signup() {
   const { register } = useAuth()
   const navigate = useNavigate()
   const [email, setEmail] = useState('')
@@ -46,7 +46,7 @@ export function Register() {
 
   return (
     <>
-      <PageMeta title="Register" description="Create a Fabriq account." />
+      <PageMeta title="Sign up" description="Create a Fabriq account." />
 
       <section className="relative mx-auto flex min-h-[80vh] max-w-sm flex-col justify-center px-6 py-24">
         <div className="bg-black/60 p-8">
@@ -93,7 +93,7 @@ export function Register() {
             {errors.form && <p className="text-sm text-red-400">{errors.form}</p>}
 
             <button type="submit" className="btn-flat mt-2">
-              Register
+              Sign up
             </button>
           </form>
 

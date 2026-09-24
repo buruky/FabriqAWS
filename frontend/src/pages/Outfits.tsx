@@ -12,7 +12,7 @@ export function Outfits() {
         <div className="panel">
           <div className="flex items-center justify-between">
             <h1 className="text-3xl text-white">Outfits</h1>
-            <Link to="/outfits/create" className="btn-primary">
+            <Link to="/outfits/new" className="btn-primary">
               Create outfit
             </Link>
           </div>

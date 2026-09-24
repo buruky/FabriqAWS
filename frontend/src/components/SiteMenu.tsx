@@ -1,28 +1,43 @@
-import { Link } from 'react-router-dom'
+import { useState } from 'react'
+import { Link, useLocation } from 'react-router-dom'
+import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline'
 import { useAuth } from '../hooks/useAuth'
 import { useDocked } from '../hooks/useDocked'
+import { AccountMenu } from './AccountMenu'
 
-// Site-wide logo + auth nav, fixed top-left/top-right on every page. Both
-// stay put regardless of scroll — no dock/undock swap, since a hard cut
-// between two differently-styled and differently-worded states (as this
-// used to do) reads as broken, not as navigation. Wording matches the Log
-// in / Register pages themselves so the CTA and the page it lands on agree.
-// Once logged in, the right-hand slot swaps to account nav (Wardrobe,
-// Outfits, Account) instead of Log in / Register — same slot, same id, so
-// the hero's star-clearance measurement in Landing.tsx keeps working
-// either way.
+const NAV_LINKS = [
+  { to: '/dashboard', label: 'Dashboard' },
+  { to: '/wardrobe', label: 'Wardrobe' },
+  { to: '/outfits', label: 'Outfits' },
+]
+
+// Site-wide logo + auth/main nav, fixed top-left/top-right on every page.
+// Both stay put regardless of scroll. Logged out shows Log in / Sign up,
+// matching the Login/Signup pages' own wording. Logged in swaps that slot
+// for main nav (Dashboard/Wardrobe/Outfits) + the account avatar menu —
+// same slot, same id="site-auth-nav" either way, since Landing.tsx's
+// star-clearance measurement reads that id directly off the DOM.
+// Below the sm breakpoint the nav links collapse behind a hamburger toggle
+// so they don't collide with the avatar in the tight top-right corner.
 export function SiteMenu() {
   const { user } = useAuth()
   const docked = useDocked()
+  const location = useLocation()
+  const [navOpen, setNavOpen] = useState(false)
+
+  // Close the mobile nav panel on every route change, so it never stays open
+  // over the next page after a link is followed. Adjusted during render
+  // (React's documented "adjusting state when a prop changes" pattern —
+  // a plain state value, not a ref, since ref mutations during render
+  // aren't safe under concurrent rendering) rather than in an effect.
+  const [prevPath, setPrevPath] = useState(location.pathname)
+  if (prevPath !== location.pathname) {
+    setPrevPath(location.pathname)
+    if (navOpen) setNavOpen(false)
+  }
 
   return (
     <>
-      {/*
-        Logo and nav share the same fixed top offset AND the same row
-        height (h-7) so their vertical centers line up exactly — matching
-        `top-6` alone isn't enough once they're different font sizes, since
-        their line-height boxes differ.
-      */}
       <div className="fixed left-1/2 top-6 z-30 flex h-7 -translate-x-1/2 items-center">
         <Link
           to="/"
@@ -35,21 +50,26 @@ export function SiteMenu() {
 
       {user ? (
         <div id="site-auth-nav" className="fixed right-[87px] top-6 z-30 flex h-7 items-center gap-4">
-          <Link to="/wardrobe" className="font-heading text-sm text-white hover:text-gold">
-            Wardrobe
-          </Link>
-          <Link to="/outfits" className="font-heading text-sm text-white hover:text-gold">
-            Outfits
-          </Link>
-          <Link
-            to="/profile"
-            className="inline-flex h-7 items-center rounded-full bg-charcoal px-4 font-heading
-              text-xs text-white transition-colors hover:bg-white hover:text-charcoal
+          <nav aria-label="Main" className="hidden items-center gap-4 sm:flex">
+            {NAV_LINKS.map((link) => (
+              <Link key={link.to} to={link.to} className="font-heading text-sm text-white hover:text-gold">
+                {link.label}
+              </Link>
+            ))}
+          </nav>
+          <AccountMenu />
+          <button
+            type="button"
+            onClick={() => setNavOpen((v) => !v)}
+            aria-expanded={navOpen}
+            aria-controls="mobile-nav"
+            aria-label={navOpen ? 'Close menu' : 'Open menu'}
+            className="flex h-8 w-8 items-center justify-center rounded-full text-white
               focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2
-              focus-visible:outline-white"
+              focus-visible:outline-white sm:hidden"
           >
-            Account
-          </Link>
+            {navOpen ? <XMarkIcon className="h-6 w-6" aria-hidden="true" /> : <Bars3Icon className="h-6 w-6" aria-hidden="true" />}
+          </button>
         </div>
       ) : (
         <div id="site-auth-nav" className="fixed right-[87px] top-6 z-30 flex h-7 items-center gap-4">
@@ -57,13 +77,13 @@ export function SiteMenu() {
             Log in
           </Link>
           <Link
-            to="/register"
+            to="/signup"
             className="inline-flex h-7 items-center gap-1.5 rounded-full bg-charcoal px-4
               font-heading text-xs text-white transition-colors hover:bg-white
               hover:text-charcoal focus-visible:outline focus-visible:outline-2
               focus-visible:outline-offset-2 focus-visible:outline-white"
           >
-            Register
+            Sign up
             <svg viewBox="0 0 16 16" fill="none" className="h-3 w-3" aria-hidden="true">
               <path
                 d="M3.5 8h9M8.5 3.5 13 8l-4.5 4.5"
@@ -75,6 +95,24 @@ export function SiteMenu() {
             </svg>
           </Link>
         </div>
+      )}
+
+      {user && navOpen && (
+        <nav
+          id="mobile-nav"
+          aria-label="Main"
+          className="fixed inset-x-0 top-20 z-20 flex flex-col gap-1 bg-charcoal p-4 shadow-lg sm:hidden"
+        >
+          {NAV_LINKS.map((link) => (
+            <Link
+              key={link.to}
+              to={link.to}
+              className="rounded-md px-3 py-2 font-heading text-white transition-colors hover:bg-white/10"
+            >
+              {link.label}
+            </Link>
+          ))}
+        </nav>
       )}
     </>
   )

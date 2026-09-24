@@ -8,7 +8,7 @@ import { SiteMenu } from './SiteMenu'
 // pitch, dashboard home, and the auth pages that flank them); everywhere
 // else gets the flat/shapes backdrop so dense UI (forms, item grids) isn't
 // fighting a busy photo behind it.
-const PHOTO_BACKDROP_PATHS = new Set(['/', '/dashboard', '/login', '/register'])
+const PHOTO_BACKDROP_PATHS = new Set(['/', '/dashboard', '/login', '/signup'])
 
 export function Layout() {
   const { pathname } = useLocation()

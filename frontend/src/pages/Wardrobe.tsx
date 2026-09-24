@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom'
 import { PageMeta } from '../components/PageMeta'
 import { useClothing } from '../hooks/useClothing'
 
@@ -11,9 +12,9 @@ export function Wardrobe() {
         <div className="panel">
           <div className="flex items-center justify-between">
             <h1 className="text-3xl text-white">Wardrobe</h1>
-            <button type="button" className="btn-primary">
+            <Link to="/wardrobe/new" className="btn-primary">
               Add item
-            </button>
+            </Link>
           </div>
 
           {loading ? (
@@ -25,13 +26,16 @@ export function Wardrobe() {
           ) : (
             <ul className="mt-8 grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4">
               {items.map((item) => (
-                <li key={item.id} className="card">
-                  <img
-                    src={item.imageUrl}
-                    alt={item.name}
-                    className="mb-2 aspect-square w-full rounded-md object-cover"
-                  />
-                  <p>{item.name}</p>
+                <li key={item.id}>
+                  <Link to={`/wardrobe/${item.id}`} className="card block hover:bg-olive/20">
+                    <img
+                      src={item.imageUrl}
+                      alt={item.name}
+                      className="mb-2 aspect-square w-full rounded-md object-cover"
+                    />
+                    <p>{item.name}</p>
+                    <p className="text-sm text-olive">{item.pieceType}</p>
+                  </Link>
                 </li>
               ))}
             </ul>

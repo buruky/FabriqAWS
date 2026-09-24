@@ -1,17 +1,6 @@
-import { useState } from 'react'
-import type { ClothingCategory } from '../config/categories'
+import { useClothingContext } from '../context/ClothingContext'
 
-export interface ClothingItem {
-  id: string
-  category: ClothingCategory
-  imageUrl: string
-  name: string
-}
-
-// TODO: replace with real data fetching once storage/DB is decided
-// (S3 vs. keeping Cloudinary, RDS vs. DynamoDB — see FRONTEND_REBUILD_SPEC.md).
+// Thin wrapper over ClothingContext, matching the current app's hooks/services split.
 export function useClothing() {
-  const [items] = useState<ClothingItem[]>([])
-  const [loading] = useState(false)
-  return { items, loading }
+  return useClothingContext()
 }
