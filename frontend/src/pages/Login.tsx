@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { PageMeta } from '../components/PageMeta'
 import { useAuth } from '../hooks/useAuth'
 
@@ -7,6 +7,7 @@ const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
 export function Login() {
   const { login } = useAuth()
+  const navigate = useNavigate()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [errors, setErrors] = useState<{ email?: string; password?: string; form?: string }>({})
@@ -27,6 +28,7 @@ export function Login() {
 
     try {
       await login(email, password)
+      navigate('/dashboard')
     } catch (err) {
       setErrors({ form: err instanceof Error ? err.message : 'Sign-in failed.' })
     }

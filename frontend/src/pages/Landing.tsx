@@ -3,12 +3,15 @@ import { motion, useScroll, useSpring, useTransform } from 'framer-motion'
 import { Link } from 'react-router-dom'
 import { PageMeta } from '../components/PageMeta'
 import ClickSpark from '../components/ClickSpark/ClickSpark'
+import accent from '../assets/accent.jpg'
+import { useDocked } from '../hooks/useDocked'
 
 const STAR_ICON_HALF = 10 // half of the 20px star icon, to keep it centered on its anchor point
 
 const HEADER_Y = 70 // final resting height (px from top) once the line docks as the header underline
 
 export function Landing() {
+  const docked = useDocked()
   const bottomLineRef = useRef<HTMLDivElement>(null)
   const { scrollY } = useScroll()
   const smoothScrollY = useSpring(scrollY, { stiffness: 90, damping: 20, mass: 0.5 })
@@ -20,6 +23,10 @@ export function Landing() {
   // `ready` so nothing renders (and no spring animates in) until the real
   // position is known — avoids a flash/slide from the wrong spot on load.
   const [restY, setRestY] = useState(0)
+  // Measured from SiteMenu's actual auth nav (rather than assumed) so the
+  // bar/star stop short of it instead of sliding underneath — its width
+  // shifts with copy ("Log in" vs a longer label) and login state.
+  const [navLeft, setNavLeft] = useState<number | null>(null)
   const [ready, setReady] = useState(false)
   useLayoutEffect(() => {
     function measure() {
@@ -27,6 +34,8 @@ export function Landing() {
       if (bottomLineRef.current) {
         setRestY(bottomLineRef.current.getBoundingClientRect().top + window.scrollY)
       }
+      const nav = document.getElementById('site-auth-nav')
+      setNavLeft(nav ? nav.getBoundingClientRect().left : null)
       setReady(true)
     }
     measure()
@@ -35,7 +44,8 @@ export function Landing() {
   }, [])
 
   const barRestWidth = 141 // short segment sitting under the logo before any scrolling
-  const barFullWidth = viewportWidth - 120 // star ends near the edge; the docked nav sits to its left
+  const NAV_CLEARANCE = 32 // gap kept between the star's resting spot and the auth nav
+  const barFullWidth = (navLeft ?? viewportWidth - 120) - NAV_CLEARANCE
 
   // The white line itself scrolls away with the hero (it's a normal in-flow
   // element). So instead of an abstract 0-1 progress, track raw scroll: the
@@ -99,15 +109,20 @@ export function Landing() {
       )}
 
       {/*
-        Logo already lives top-left via SiteMenu, so the hero headline is a
-        short brand line instead of repeating the wordmark.
+        Logo and auth nav (Log in / Register) live in SiteMenu, fixed
+        site-wide, so the hero headline is a short brand line instead of
+        repeating the wordmark or its own nav.
       */}
       <section className="relative flex min-h-screen flex-col justify-center px-6 py-16 sm:px-12">
         <div aria-hidden className="pointer-events-none absolute inset-0">
-          <div className="absolute left-0 right-0 top-[0px] h-px bg-white/50" />
-          <div ref={bottomLineRef} className="absolute bottom-[15%] left-0 right-0 h-px bg-white/50" />
+          <div className="absolute left-0 right-0 top-[0px] h-px bg-white/0" />
+          <div
+            ref={bottomLineRef}
+            className={`absolute bottom-[15%] left-0 right-0 h-px bg-white/50 transition-opacity
+              duration-300 ${docked ? 'opacity-0' : 'opacity-100'}`}
+          />
           <div className="absolute left-[140px] -top-20 bottom-[15%] w-px bg-white/50" />
-          <div className="absolute right-[15%] -top-0 bottom-[15%] w-px bg-white/50" />
+          <div className="absolute right-[15%] -top-0 bottom-[15%] w-px bg-white/0" />
           {[
             { pct: 8, width: 40 },
             { pct: 16, width: 32 },
@@ -121,15 +136,35 @@ export function Landing() {
             />
           ))}
         </div>
-        <div className="flex max-w-xl flex-col gap-6 pl-[136px] sm:pl-[112px]">
-          <h1 className="self-start text-4xl font-heading leading-tight text-gold sm:text-5xl">
-            Wear more of what you already own.
+        {/*
+          Crop-mark frame echoes the hero's own ruler ticks (same gold/white
+          accent language) rather than a plain photo border.
+        */}
+        <div className="absolute left-[589px] top-[36px] h-[532px] w-[316px]">
+          <img src={accent} alt="" className="h-full w-full object-cover" />
+          <div className="pointer-events-none absolute inset-0 border border-white/40" />
+          {[
+            { corner: '-left-3 -top-3', v: 'top-0', h: 'left-0' },
+            { corner: '-right-3 -top-3', v: 'top-0', h: 'right-0' },
+            { corner: '-left-3 -bottom-3', v: 'bottom-0', h: 'left-0' },
+            { corner: '-right-3 -bottom-3', v: 'bottom-0', h: 'right-0' },
+          ].map(({ corner, v, h }) => (
+            <div key={corner} className={`pointer-events-none absolute h-6 w-6 ${corner}`}>
+              <div className={`absolute h-full w-px bg-gold ${h}`} />
+              <div className={`absolute h-px w-full bg-gold ${v}`} />
+            </div>
+          ))}
+        </div>
+
+        <div className="relative z-10 mx-auto flex max-w-xl flex-col items-center gap-6 text-center">
+          <h1 className="font-wordmark text-4xl font-black leading-tight text-gold sm:text-5xl">
+            Outfits you didn't know you had.
           </h1>
           <p className="max-w-md text-lg text-white/80">
             Photograph your wardrobe once. Fabriq combines those pieces into outfits
             you'd actually wear, using what's already in your closet.
           </p>
-          <div className="inline-block self-start">
+          <div className="inline-block">
             <ClickSpark sparkColor="#E8D973" sparkCount={10} sparkRadius={20}>
               <Link to="/register" className="btn-flat">
                 Add your wardrobe

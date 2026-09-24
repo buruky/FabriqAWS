@@ -18,6 +18,9 @@ export default {
         // Deliberate pairing, not the Inter default (see FRONTEND_REBUILD_SPEC.md #2.1.4).
         heading: ['"Unica One"', 'sans-serif'],
         body: ['"Crimson Text"', 'serif'],
+        // FABRIQ wordmark only — a high-contrast serif for the logo, distinct
+        // from the sans-serif heading font used everywhere else.
+        wordmark: ['"Playfair Display"', 'serif'],
       },
     },
   },

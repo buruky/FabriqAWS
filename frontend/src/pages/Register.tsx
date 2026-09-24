@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { PageMeta } from '../components/PageMeta'
 import { useAuth } from '../hooks/useAuth'
 
@@ -8,6 +8,7 @@ const MIN_PASSWORD_LENGTH = 8
 
 export function Register() {
   const { register } = useAuth()
+  const navigate = useNavigate()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
@@ -37,6 +38,7 @@ export function Register() {
 
     try {
       await register(email, password)
+      navigate('/dashboard')
     } catch (err) {
       setErrors({ form: err instanceof Error ? err.message : 'Registration failed.' })
     }

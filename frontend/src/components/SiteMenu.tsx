@@ -1,111 +1,80 @@
-import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { XMarkIcon } from '@heroicons/react/24/outline'
+import { useAuth } from '../hooks/useAuth'
+import { useDocked } from '../hooks/useDocked'
 
-function MenuGridIcon({ className }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" className={className}>
-      <rect x="3" y="3" width="8" height="8" rx="2" fill="#E8D973" />
-      <rect x="13" y="3" width="8" height="8" rx="2" fill="#FFFFFF" />
-      <rect x="3" y="13" width="8" height="8" rx="2" fill="#FFFFFF" />
-      <rect x="13" y="13" width="8" height="8" rx="2" fill="#E8D973" />
-    </svg>
-  )
-}
-
-const LINKS = [
-  { to: '/login', label: 'Log in' },
-  { to: '/register', label: 'Register' },
-]
-
-// Site-wide logo + menu, fixed top-left, replacing the old full-width Navbar
-// everywhere. Below the logo sits a hamburger with a dropdown — until you've
-// scrolled far enough (roughly matching the hero's scroll-to-header handoff
-// on the landing page) at which point the links dock as plain options in
-// the top-right corner instead. Closes on Escape and on outside click.
+// Site-wide logo + auth nav, fixed top-left/top-right on every page. Both
+// stay put regardless of scroll — no dock/undock swap, since a hard cut
+// between two differently-styled and differently-worded states (as this
+// used to do) reads as broken, not as navigation. Wording matches the Log
+// in / Register pages themselves so the CTA and the page it lands on agree.
+// Once logged in, the right-hand slot swaps to account nav (Wardrobe,
+// Outfits, Account) instead of Log in / Register — same slot, same id, so
+// the hero's star-clearance measurement in Landing.tsx keeps working
+// either way.
 export function SiteMenu() {
-  const [open, setOpen] = useState(false)
-  const [docked, setDocked] = useState(false)
-  const rootRef = useRef<HTMLDivElement>(null)
-
-  useEffect(() => {
-    function handleScroll() {
-      const isDocked = window.scrollY > window.innerHeight * 0.75
-      setDocked(isDocked)
-      if (isDocked) setOpen(false)
-    }
-    handleScroll()
-    window.addEventListener('scroll', handleScroll, { passive: true })
-    return () => window.removeEventListener('scroll', handleScroll)
-  }, [])
-
-  useEffect(() => {
-    if (!open) return
-
-    function handleKeyDown(e: KeyboardEvent) {
-      if (e.key === 'Escape') setOpen(false)
-    }
-    function handleClickOutside(e: MouseEvent) {
-      if (rootRef.current && !rootRef.current.contains(e.target as Node)) {
-        setOpen(false)
-      }
-    }
-
-    document.addEventListener('keydown', handleKeyDown)
-    document.addEventListener('mousedown', handleClickOutside)
-    return () => {
-      document.removeEventListener('keydown', handleKeyDown)
-      document.removeEventListener('mousedown', handleClickOutside)
-    }
-  }, [open])
+  const { user } = useAuth()
+  const docked = useDocked()
 
   return (
     <>
-      <div ref={rootRef} className="fixed left-9 top-6 z-30 flex flex-col items-center gap-20 text-white">
-        <Link to="/" onClick={() => setOpen(false)} className="font-heading text-2xl tracking-wide text-gold">
+      {/*
+        Logo and nav share the same fixed top offset AND the same row
+        height (h-7) so their vertical centers line up exactly — matching
+        `top-6` alone isn't enough once they're different font sizes, since
+        their line-height boxes differ.
+      */}
+      <div className="fixed left-1/2 top-6 z-30 flex h-7 -translate-x-1/2 items-center">
+        <Link
+          to="/"
+          className={`font-wordmark font-black leading-none tracking-wide text-white
+            transition-[font-size] duration-300 ${docked ? 'text-5xl' : 'text-7xl'}`}
+        >
           FABRIQ
         </Link>
-
-        {!docked && (
-          <div className="relative">
-            <button
-              type="button"
-              onClick={() => setOpen((v) => !v)}
-              aria-expanded={open}
-              aria-controls="site-menu-panel"
-              aria-label={open ? 'Close menu' : 'Open menu'}
-            >
-              {open ? <XMarkIcon className="h-6 w-6" /> : <MenuGridIcon className="h-10 w-8" />}
-            </button>
-
-            {open && (
-              <ul
-                id="site-menu-panel"
-                className="absolute left-1/2 top-full mt-3 flex -translate-x-1/2 flex-col gap-3 whitespace-nowrap bg-black/80 px-6 py-4 font-heading text-white"
-              >
-                {LINKS.map((link) => (
-                  <li key={link.to}>
-                    <Link to={link.to} onClick={() => setOpen(false)} className="hover:text-gold">
-                      {link.label}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </div>
-        )}
       </div>
 
-      {docked && (
-        <ul className="fixed right-40 top-6 z-30 flex items-center gap-6 text-white">
-          {LINKS.map((link) => (
-            <li key={link.to}>
-              <Link to={link.to} className="hover:text-gold">
-                {link.label}
-              </Link>
-            </li>
-          ))}
-        </ul>
+      {user ? (
+        <div id="site-auth-nav" className="fixed right-[87px] top-6 z-30 flex h-7 items-center gap-4">
+          <Link to="/wardrobe" className="font-heading text-sm text-white hover:text-gold">
+            Wardrobe
+          </Link>
+          <Link to="/outfits" className="font-heading text-sm text-white hover:text-gold">
+            Outfits
+          </Link>
+          <Link
+            to="/profile"
+            className="inline-flex h-7 items-center rounded-full bg-charcoal px-4 font-heading
+              text-xs text-white transition-colors hover:bg-white hover:text-charcoal
+              focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2
+              focus-visible:outline-white"
+          >
+            Account
+          </Link>
+        </div>
+      ) : (
+        <div id="site-auth-nav" className="fixed right-[87px] top-6 z-30 flex h-7 items-center gap-4">
+          <Link to="/login" className="font-heading text-sm text-white hover:text-gold">
+            Log in
+          </Link>
+          <Link
+            to="/register"
+            className="inline-flex h-7 items-center gap-1.5 rounded-full bg-charcoal px-4
+              font-heading text-xs text-white transition-colors hover:bg-white
+              hover:text-charcoal focus-visible:outline focus-visible:outline-2
+              focus-visible:outline-offset-2 focus-visible:outline-white"
+          >
+            Register
+            <svg viewBox="0 0 16 16" fill="none" className="h-3 w-3" aria-hidden="true">
+              <path
+                d="M3.5 8h9M8.5 3.5 13 8l-4.5 4.5"
+                stroke="currentColor"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+          </Link>
+        </div>
       )}
     </>
   )

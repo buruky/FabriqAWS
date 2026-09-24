@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { HelmetProvider } from 'react-helmet-async'
+import { Agentation } from 'agentation'
 import { UserProvider } from './context/UserContext'
 import { Layout } from './components/Layout'
 import { Landing } from './pages/Landing'
@@ -40,6 +41,7 @@ export default function App() {
           </Routes>
         </BrowserRouter>
       </UserProvider>
+      {import.meta.env.DEV && <Agentation />}
     </HelmetProvider>
   )
 }

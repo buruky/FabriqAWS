@@ -18,16 +18,26 @@ const UserContext = createContext<UserContextValue | undefined>(undefined)
 // Auth backend (Cognito vs. keeping Supabase) is an open decision — see
 // FRONTEND_REBUILD_SPEC.md "Open decisions to resolve before scaffolding".
 // This provider exists so pages can render against the real shape now;
-// login/register throw until that decision is made and wired in.
+// login/register throw until that decision is made and wired in — except in
+// dev, where they fake a session so the logged-in pages can be previewed
+// without a backend. Password is intentionally ignored in that path.
 export function UserProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<AuthUser | null>(null)
   const [loading] = useState(false)
 
-  const login: UserContextValue['login'] = async () => {
+  const login: UserContextValue['login'] = async (email) => {
+    if (import.meta.env.DEV) {
+      setUser({ id: 'dev-user', email })
+      return
+    }
     throw new Error('Auth backend not yet decided — see FRONTEND_REBUILD_SPEC.md')
   }
 
-  const register: UserContextValue['register'] = async () => {
+  const register: UserContextValue['register'] = async (email) => {
+    if (import.meta.env.DEV) {
+      setUser({ id: 'dev-user', email })
+      return
+    }
     throw new Error('Auth backend not yet decided — see FRONTEND_REBUILD_SPEC.md')
   }
 
