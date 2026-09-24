@@ -14,7 +14,7 @@ export function OutfitDetail() {
         description="Details for a saved Fabriq outfit."
       />
       <section className="relative mx-auto max-w-3xl px-6 py-16">
-        <div className="bg-black/60 p-8">
+        <div className="panel">
           {loading ? (
             <p className="text-white/70">Loading...</p>
           ) : outfit ? (

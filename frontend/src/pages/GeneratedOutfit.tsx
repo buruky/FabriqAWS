@@ -8,7 +8,7 @@ export function GeneratedOutfit() {
     <>
       <PageMeta title="Generated outfit" description="An outfit generated from your wardrobe." />
       <section className="relative mx-auto max-w-3xl px-6 py-16">
-        <div className="bg-black/60 p-8">
+        <div className="panel">
           <h1 className="text-3xl text-white">Generated outfit</h1>
           <p className="mt-4 text-white/70">
             Outfit generation isn't wired up yet — this page will show the result once

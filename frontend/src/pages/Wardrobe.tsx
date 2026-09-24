@@ -8,7 +8,7 @@ export function Wardrobe() {
     <>
       <PageMeta title="Wardrobe" description="Every item in your Fabriq wardrobe." />
       <section className="relative mx-auto max-w-5xl px-6 py-16">
-        <div className="bg-black/60 p-8">
+        <div className="panel">
           <div className="flex items-center justify-between">
             <h1 className="text-3xl text-white">Wardrobe</h1>
             <button type="button" className="btn-primary">

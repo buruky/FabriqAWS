@@ -46,6 +46,16 @@
     @apply rounded-lg bg-olive/10 p-6;
   }
 
+  /*
+   * Page-level content panel for the pages sitting on the flat charcoal
+   * backdrop (not the photo) — same surface treatment as `.card`, just
+   * sized for a full page rather than a grid item, so it reads as one
+   * deliberate color rather than the generic bg-black/60 box.
+   */
+  .panel {
+    @apply rounded-lg bg-olive/10 p-8;
+  }
+
   .badge {
     @apply inline-block rounded-full bg-gold px-3 py-1 text-sm font-body text-charcoal;
   }
