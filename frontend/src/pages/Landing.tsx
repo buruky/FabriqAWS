@@ -3,7 +3,6 @@ import { motion, useScroll, useSpring, useTransform } from 'framer-motion'
 import { Link } from 'react-router-dom'
 import { PageMeta } from '../components/PageMeta'
 import ClickSpark from '../components/ClickSpark/ClickSpark'
-import accent from '../assets/accent.jpg'
 import { useDocked } from '../hooks/useDocked'
 
 const STAR_ICON_HALF = 10 // half of the 20px star icon, to keep it centered on its anchor point
@@ -136,26 +135,6 @@ export function Landing() {
             />
           ))}
         </div>
-        {/*
-          Crop-mark frame echoes the hero's own ruler ticks (same gold/white
-          accent language) rather than a plain photo border.
-        */}
-        <div className="absolute left-[589px] top-[36px] h-[532px] w-[316px]">
-          <img src={accent} alt="" className="h-full w-full object-cover" />
-          <div className="pointer-events-none absolute inset-0 border border-white/40" />
-          {[
-            { corner: '-left-3 -top-3', v: 'top-0', h: 'left-0' },
-            { corner: '-right-3 -top-3', v: 'top-0', h: 'right-0' },
-            { corner: '-left-3 -bottom-3', v: 'bottom-0', h: 'left-0' },
-            { corner: '-right-3 -bottom-3', v: 'bottom-0', h: 'right-0' },
-          ].map(({ corner, v, h }) => (
-            <div key={corner} className={`pointer-events-none absolute h-6 w-6 ${corner}`}>
-              <div className={`absolute h-full w-px bg-gold ${h}`} />
-              <div className={`absolute h-px w-full bg-gold ${v}`} />
-            </div>
-          ))}
-        </div>
-
         <div className="relative z-10 mx-auto flex max-w-xl flex-col items-center gap-6 text-center">
           <h1 className="font-wordmark text-4xl font-black leading-tight text-gold sm:text-5xl">
             Outfits you didn't know you had.
