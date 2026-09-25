@@ -2,6 +2,7 @@
 // shape: module-level mock "backend" + async CRUD functions, so swapping in
 // a real API later only touches this file. See CLAUDE.md "Current stage".
 import type { ClothingItem } from './clothing'
+import { generateId } from './id'
 
 export type OutfitMethod = 'manual' | 'agent'
 
@@ -42,10 +43,6 @@ export interface Outfit extends NewOutfitInput {
   id: string
   createdAt: string
   updatedAt: string
-}
-
-function generateId(prefix: string): string {
-  return `${prefix}-${crypto.randomUUID()}`
 }
 
 function delay<T>(value: T, ms = 300): Promise<T> {

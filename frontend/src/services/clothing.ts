@@ -4,6 +4,8 @@
 // real backend is decided, only this file changes, not context/components.
 // See CLAUDE.md "Current stage".
 
+import { generateId } from './id'
+
 export type ImageSource = 'upload' | 'camera' | 'web'
 
 export interface NewClothingItemInput {
@@ -34,10 +36,6 @@ export interface WebSearchResult {
   id: string
   name: string
   imageUrl: string
-}
-
-function generateId(prefix: string): string {
-  return `${prefix}-${crypto.randomUUID()}`
 }
 
 function delay<T>(value: T, ms = 300): Promise<T> {
